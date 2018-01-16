@@ -33,24 +33,29 @@ Square Sum problem from Numberphile modification
   Develop as a package/object.
   I'm thinking linkByValue and linkByIndex methods.  Link probably stored as index.
  -->
-This finds the different orders in which the sequence of ordinal numbers ending with this number can
-be ordered so that any two subsequent numbers sum to a square (like 9 or 16).
-<br>Note that no sequence is generated if you pick the numbers 18 through 22.
-Above 22 does generate sequences, often many of them.
 <form id="frm" accept-charset="utf-8" action="javascript:;" onsubmit="handleForm(this)">
 Pick a number.
 <input type="number" name="maxnumber" min="15" max="51">
 <button onclick="handleForm()">Go</button>
 </form>
-<hr>
-<p id="SumSquare"></p>
-<hr>
+<p id="SumSquare">
+</p>
 <p id="TextOutput"></p>
+<ul>
+<li>This page orders the sequence of ordinal numbers 1..&lt;number&gt;
+so that any two sequential numbers sum to a square (like 9 or 16).
+<li>Note that no sequence is generated if you pick the numbers 18 through 22 or 24.
+<li>
+15, 16, 17, 23 and 25 and above do generate sequences, often many of them.
+<li>If the sequence can start at any number, only those starting at 1 are shown.
+<li>The calculations for the 1..40 sequences take about a minute on an I7 processor so I've imposed an upper limit of 51.
+<li>This uses a brute force algorithm.  Any additional optimization should use an improved algorithm (forthcoming).
+</ul>
 <script>
 var resultBuffer="";
 function init(n){
 	var list=[];
-	resultBuffer=n + ":</br>";
+	resultBuffer="1.." + n + ":</br>";
 	for(var i=1;i<=n;i++){
 		list.push(i);
 	}
@@ -134,12 +139,10 @@ function render(list){
 }
 function main(top){
 	var list=init(top);
-	var d = new Date();
-	var then = d.getTime();
+//	var d = new Date();
+//	var then = d.getTime();
 
-//	buildSeries(list,[]);
 	var startList=findSingles(top);
-	resultBuffer=resultBuffer + "</br>" + startList + "<br>";
 	if(startList.length == 0){
 		buildSeries(list,[1]);
 	}
@@ -154,15 +157,15 @@ function main(top){
 		resultBuffer="";
 	}
 
-	d = new Date();
-	var delay = d.getTime() - then;
-	resultBuffer += delay + " ms<br>";
+//	d = new Date();
+//	var delay = d.getTime() - then;
+//	resultBuffer += delay + " ms<br>";
 }
 function handleForm(){
 	var form=document.getElementById("frm");
 	var text=form.elements[0].value;
 	main(text);
-	document.getElementById("SumSquare").innerHTML="<tt>" + resultBuffer + "</tt>";
+	document.getElementById("SumSquare").innerHTML="<hr><tt>" + resultBuffer + "</tt><hr>";
 }
 function testListDoesNotContainN(src,dst){
 	for(var i=0;i<src.length;i++){
