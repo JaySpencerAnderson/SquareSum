@@ -1,0 +1,219 @@
+<html>
+<head>
+<title>
+Square Sum problem from Numberphile
+</title>
+<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
+</head>
+<body>
+<!-- Next Steps
+ Add Canvas and draw graph on it.
+ Numbers should be no closer than scale
+ Minimize distance between subsequent numbers
+ Minimize the number of times links cross or cross number.
+ Scroll listed numbers so that one can trace any route on the graph.
+ 
+ Maybe place in several pseudo random but deterministic methods, maybe like subitizing.
+ Maybe then minimize crossed links first, possibly exchanging locations
+ of numbers with the highest costs.
+ Logic will probably be completely separate, possibly merging later.
+ Maybe array of points with an array of links for each, plus cost (distance, crossed lines)
+ For weighting, links should go from the far side of a spot to the far side.
+
+ Actually, after doing 15 through 23 by hand,
+  Minimize links crossing.  15 through 23 can be done without crossing.
+  Next, minimize length of links.
+  Procedurally, handle 15 first, then 23.
+  Might think of 15 as a loop with two lines, one being very short (8).
+  The places where a line connects to the loop is where a number has 3 choices.
+  The ends of the lines are where a number has one choice.  The ends of lines are
+  what distinguish a line from a loop.
+ Start a new HTML file.
+  Run test cases.
+  Develop as a package/object.
+  I'm thinking linkByValue and linkByIndex methods.  Link probably stored as index.
+ -->
+<tt>
+This finds the different orders in which the sequence of ordinal numbers ending with this number can
+be ordered so that any two subsequent numbers sum to a square (like 9 or 16).
+<form id="frm" accept-charset="utf-8" action="javascript:;" onsubmit="handleForm(this)">
+Pick a number.
+<input type="number" name="maxnumber" min="15" max="51">
+<button onclick="handleForm()">Go</button>
+</form>
+</tt>
+<hr>
+<p id="SumSquare"></p>
+<hr>
+<p id="TextOutput"></p>
+<script>
+var resultBuffer="";
+function init(n){
+	var list=[];
+	resultBuffer=n + ":</br>";
+	for(var i=1;i<=n;i++){
+		list.push(i);
+	}
+	return list;
+}
+// 6.87%
+// Start checking at 4
+function isSquare(n){
+	var i=5;
+	var sq=4;
+	while(sq < n){
+		sq+=i;
+		i+=2;
+	}
+	if(sq == n){
+		return true;
+	}
+	return false;
+}
+// 4.18%
+function endsWithSquare(list){
+	var len=list.length;
+	if(len > 1){
+		if(!isSquare(list[len-1] + list[len-2])){
+			return false;
+		}
+	}
+	return true;
+}
+// 44.27%
+function listContainsN(list, n){
+	for(var i=0;i<list.length;i++){
+		if(list[i] == n){
+			return false;
+		}
+	}
+	return true;
+}
+// 24.92%
+function buildSeries(src,dst){
+	for(var i=0;i<src.length;i++){
+		if(listContainsN(dst, src[i])){
+			dst.push(src[i]);
+			if(endsWithSquare(dst)){
+				if(src.length > dst.length){
+					buildSeries(src,dst);
+				}
+				else{
+					render(dst);
+				}
+			}
+			dst.pop();
+		}
+	}
+}
+function findSingles(n){
+	var list=[];
+	for(var i=1;i<=n;i++){
+		var count=0;
+		var incr=3;
+		// sq is a square minus i starting with 4 - i
+		for(var sq=4-i;sq<=n;sq+=incr){
+			incr+=2;
+			if(sq > 0 && sq != i){
+				count++;
+			}
+		}
+		if(count == 1){
+			list.push(i);
+		}
+	}
+	return list;
+}
+function render(list){
+	var delim="";
+	for(var i=0;i<list.length;i++){
+		resultBuffer=resultBuffer + delim + list[i];
+		delim=",";
+	}
+	resultBuffer=resultBuffer + "</br>";
+}
+function main(top){
+	var list=init(top);
+	var d = new Date();
+	var then = d.getTime();
+
+//	buildSeries(list,[]);
+	var startList=findSingles(top);
+	resultBuffer=resultBuffer + "</br>" + startList + "<br>";
+	if(startList.length == 0){
+		buildSeries(list,[1]);
+	}
+	else if(startList.length == 1){
+		buildSeries(list,startList);
+	}
+	else if(startList.length == 2){
+		startList.pop();
+		buildSeries(list,startList);
+	}
+	else {
+		resultBuffer="";
+	}
+
+	d = new Date();
+	var delay = d.getTime() - then;
+	resultBuffer += delay + " ms<br>";
+}
+function handleForm(){
+	var form=document.getElementById("frm");
+	var text=form.elements[0].value;
+	main(text);
+	document.getElementById("SumSquare").innerHTML="<tt>" + resultBuffer + "</tt>";
+}
+function testListDoesNotContainN(src,dst){
+	for(var i=0;i<src.length;i++){
+		if(listContainsN(dst, src[i])){
+			dst.push(src[i]);
+			if(src.length > dst.length){
+				testListDoesNotContainN(src,dst);
+			}
+			else {
+				console.log(dst);
+				render(dst);
+			}
+			dst.pop();
+		}
+	}
+}
+function testIsSquare(m){
+	var delim="";
+	for(var i=1;i<=m;i++){
+		if(isSquare(i)){
+			resultBuffer=resultBuffer + delim + i + " is a square";
+		}
+		delim="<br>";
+	}
+
+	resultBuffer=resultBuffer + "</br>";
+	document.getElementById("SumSquare").innerHTML=resultBuffer;
+}
+function testRender(n){
+	render(init(n));
+	document.getElementById("SumSquare").innerHTML=resultBuffer;
+}
+function testFindSingles(list){
+	var fsbuffer="";
+	for(var i=0;i<list.length;i++){
+		fsbuffer+=list[i] + ": ";
+		fsbuffer+=findSingles(list[i]);
+		fsbuffer+="<br>";
+	}
+	document.getElementById("TextOutput").innerHTML=fsbuffer;
+}
+function test(n){
+	testIsSquare(n);
+	resultBuffer=resultBuffer + "<hr>";
+	testRender(n);
+	resultBuffer=resultBuffer + "<hr>";
+	testListDoesNotContainN([1,2,3],[]);
+	testFindSingles([15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32]);
+}
+//test(10);
+main(16);
+</script>
+</body>
+</html>
