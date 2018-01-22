@@ -1,5 +1,5 @@
 # SquareSum
-## Arrange a sequence of monotonicall increasing ordinal numbers from 1 to N so that
+## Arrange a sequence of monotonically increasing ordinal numbers from 1 to N so that
 ##  each pair of adjacent numbers adds to a square.
 
 [The Numberphile youtube channel suggested this exercise.](https://www.youtube.com/watch?v=G1m7goLCJDY&t=457s)
